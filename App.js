@@ -1,45 +1,45 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
+const mysql = require('mysql2');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const app = express();
 
-app.use(cors()); // Use the cors middleware
+app.use(cors());
 app.use(fileUpload());
 
-// Endpoint to upload images
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'jpruezkiez',
+    password: 'kapa2122_',
+    database: 'jpdb',
+});
+
 app.post('/upload', (req, res) => {
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).send('No files were uploaded.');
     }
 
     const image = req.files.image;
-    image.mv('/home/paulamar9428/images/' + image.name, (err) => {
-        if (err) {
-            return res.status(500).send(err);
+    const imageName = image.name;
+
+    connection.query(
+        'INSERT INTO imagesurls (image) VALUES (?)',
+        [imageName],
+        (error, results, fields) => {
+            if (error) {
+                return res.status(500).send('Error saving to database');
+            }
+            image.mv('/home/paulamar9428/images/' + imageName, (err) => {
+                if (err) {
+                    return res.status(500).send(err);
+                }
+
+                res.send('File uploaded and saved to database!');
+            });
         }
-
-        res.send('File uploaded!');
-    });
-});
-
-// Endpoint to get the list of images
-app.get('/listimages', (req, res) => {
-    const directoryPath = '/home/paulamar9428/images/';
-
-    fs.readdir(directoryPath, (err, files) => {
-        if (err) {
-            return res.status(500).send('Unable to scan directory: ' + err);
-        }
-
-        const imageList = files.map((file, index) => ({
-            id: index + 1,
-            name: file,
-        }));
-
-        res.json(imageList);
-    });
+    );
 });
 
 app.listen(8080, () => {
