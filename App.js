@@ -21,26 +21,32 @@ app.post('/upload', (req, res) => {
         return res.status(400).send('No files were uploaded.');
     }
 
-    const image = req.files.image;
-    const imageName = image.name;
+    const images = req.files.image;
+    const imageNames = Array.isArray(images) ? images.map((image) => image.name) : [images.name];
 
-    connection.query(
-        'INSERT INTO imagesurls (image) VALUES (?)',
-        [imageName],
-        (error, results, fields) => {
-            if (error) {
-                return res.status(500).send('Error saving to database');
-            }
-            image.mv('/home/paulamar9428/images/' + imageName, (err) => {
-                if (err) {
-                    return res.status(500).send(err);
+    imageNames.forEach((imageName, index) => {
+        const image = Array.isArray(images) ? images[index] : images;
+        connection.query(
+            'INSERT INTO imagesurls (image) VALUES (?)',
+            [imageName],
+            (error, results, fields) => {
+                if (error) {
+                    return res.status(500).send('Error saving to database');
                 }
-
-                res.send('File uploaded and saved to database!');
-            });
-        }
-    );
+                const destination = '/home/paulamar9428/images/' + imageName;
+                image.mv(destination, (err) => {
+                    if (err) {
+                        return res.status(500).send(err);
+                    }
+                    if (index === imageNames.length - 1) {
+                        res.send('Files uploaded and saved to database!');
+                    }
+                });
+            }
+        );
+    });
 });
+
 
 app.listen(8080, () => {
     console.log('Server is running on port 8000');
