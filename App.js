@@ -33,7 +33,12 @@ app.get('/listimages', (req, res) => {
             return res.status(500).send('Unable to scan directory: ' + err);
         }
 
-        res.json(files);
+        const imageList = files.map((file, index) => ({
+            id: index + 1,
+            name: file,
+        }));
+
+        res.json(imageList);
     });
 });
 
