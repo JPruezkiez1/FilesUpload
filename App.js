@@ -3,6 +3,7 @@ const fileUpload = require('express-fileupload');
 const mysql = require('mysql2');
 const fs = require('fs');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid'); // Importing the uuid package
 const cors = require('cors');
 const app = express();
 
@@ -24,18 +25,26 @@ app.post('/upload', (req, res) => {
     const images = req.files.image;
     const imageNames = Array.isArray(images) ? images.map((image) => image.name) : [images.name];
 
-    const name = req.body.name; // Assuming you are sending the 'name' from the frontend
-
     imageNames.forEach((imageName, index) => {
+        const uniqueId = uuidv4(); // Generating a unique ID
+        const ext = path.extname(imageName); // Getting the file extension
+        const newName = `${uniqueId}${ext}`; // Creating a new file name
+
         const image = Array.isArray(images) ? images[index] : images;
+        const destination = '/home/paulamar9428/images/' + newName;
+
+        // Check if the file already exists in the images folder
+        if (fs.existsSync(destination)) {
+            return res.status(400).send('File already exists.');
+        }
+
         connection.query(
-            'INSERT INTO imagesurls (image, name) VALUES (?, ?)', // Modified SQL query
-            [imageName, name], // Added 'name' to the array
+            'INSERT INTO imagesurls (image, name) VALUES (?, ?)', // Inserting name into the database
+            [newName, req.body.name || ''], // Passing the new name and the name from the request body
             (error, results, fields) => {
                 if (error) {
                     return res.status(500).send('Error saving to database');
                 }
-                const destination = '/home/paulamar9428/images/' + imageName;
                 image.mv(destination, (err) => {
                     if (err) {
                         return res.status(500).send(err);
@@ -48,8 +57,6 @@ app.post('/upload', (req, res) => {
         );
     });
 });
-
-
 
 app.listen(8080, () => {
     console.log('Server is running on port 8000');
