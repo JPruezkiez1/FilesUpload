@@ -1,7 +1,9 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
+const cors = require('cors');
 const app = express();
 
+app.use(cors()); // Use the cors middleware
 app.use(fileUpload());
 
 app.post('/upload', (req, res) => {
@@ -19,6 +21,6 @@ app.post('/upload', (req, res) => {
     });
 });
 
-app.listen(8080, () => {
-    console.log('Server is running');
+app.listen(8000, () => {
+    console.log('Server is running on port 8000');
 });
