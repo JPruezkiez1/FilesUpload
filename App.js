@@ -24,11 +24,13 @@ app.post('/upload', (req, res) => {
     const images = req.files.image;
     const imageNames = Array.isArray(images) ? images.map((image) => image.name) : [images.name];
 
+    const name = req.body.name; // Assuming you are sending the 'name' from the frontend
+
     imageNames.forEach((imageName, index) => {
         const image = Array.isArray(images) ? images[index] : images;
         connection.query(
-            'INSERT INTO imagesurls (image) VALUES (?)',
-            [imageName],
+            'INSERT INTO imagesurls (image, name) VALUES (?, ?)', // Modified SQL query
+            [imageName, name], // Added 'name' to the array
             (error, results, fields) => {
                 if (error) {
                     return res.status(500).send('Error saving to database');
@@ -46,6 +48,7 @@ app.post('/upload', (req, res) => {
         );
     });
 });
+
 
 
 app.listen(8080, () => {
