@@ -3,9 +3,19 @@ const fileUpload = require('express-fileupload');
 const mysql = require('mysql2');
 const fs = require('fs');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid'); // Importing the uuid package
 const cors = require('cors');
 const app = express();
+
+// Custom function to generate a 6-character ID
+function generateShortId() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const charactersLength = characters.length;
+    for (let i = 0; i < 6; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
 
 app.use(cors());
 app.use(fileUpload());
@@ -26,31 +36,23 @@ app.post('/upload', (req, res) => {
     const imageNames = Array.isArray(images) ? images.map((image) => image.name) : [images.name];
 
     imageNames.forEach((imageName, index) => {
-        const uniqueId = uuidv4(); // Generating a unique ID
-        const ext = path.extname(imageName); // Getting the file extension
-        const newName = `${uniqueId}${ext}`; // Creating a new file name
-
         const image = Array.isArray(images) ? images[index] : images;
-        const destination = '/home/paulamar9428/images/' + newName;
-
-        // Check if the file already exists in the images folder
-        if (fs.existsSync(destination)) {
-            return res.status(400).send('File already exists.');
-        }
+        const newFileName = generateShortId() + path.extname(imageName); // Generates a 6-character ID
 
         connection.query(
-            'INSERT INTO imagesurls (image, name) VALUES (?, ?)', // Inserting name into the database
-            [newName, req.body.name || ''], // Passing the new name and the name from the request body
+            'INSERT INTO imagesurls (name, image) VALUES (?, ?)',
+            [newFileName, imageName],
             (error, results, fields) => {
                 if (error) {
                     return res.status(500).send('Error saving to database');
                 }
+                const destination = '/home/paulamar9428/images/' + newFileName;
                 image.mv(destination, (err) => {
                     if (err) {
                         return res.status(500).send(err);
                     }
                     if (index === imageNames.length - 1) {
-                        res.send('Files uploaded and saved to database!');
+                        res.send('Files uploaded and saved to the database!');
                     }
                 });
             }
