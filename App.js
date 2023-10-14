@@ -6,7 +6,6 @@ const path = require('path');
 const cors = require('cors');
 const app = express();
 
-// Custom function to generate a 6-character ID
 function generateShortId() {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
@@ -37,16 +36,16 @@ app.post('/upload', (req, res) => {
 
     imageNames.forEach((imageName, index) => {
         const image = Array.isArray(images) ? images[index] : images;
-        const newFileName = generateShortId() + path.extname(imageName); // Generates a 6-character ID
+        const newFileName = generateShortId() + path.extname(imageName);
 
         connection.query(
             'INSERT INTO imagesurls (name, image) VALUES (?, ?)',
-            [newFileName, imageName],
+            [req.body.name, newFileName],
             (error, results, fields) => {
                 if (error) {
                     return res.status(500).send('Error saving to database');
                 }
-                const destination = '/home/paulamar9428/images/' + newFileName;
+                const destination = path.join(__dirname, 'images', newFileName);
                 image.mv(destination, (err) => {
                     if (err) {
                         return res.status(500).send(err);
