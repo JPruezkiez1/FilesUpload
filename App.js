@@ -45,7 +45,7 @@ app.post('/upload', (req, res) => {
                 if (error) {
                     return res.status(500).send('Error saving to database');
                 }
-                const destination = path.join(__dirname, 'images', newFileName);
+                const destination = '/home/paulamar9428/images/' + newFileName;
                 image.mv(destination, (err) => {
                     if (err) {
                         return res.status(500).send(err);
