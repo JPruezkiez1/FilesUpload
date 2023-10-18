@@ -53,7 +53,7 @@ app.post('/upload', (req, res) => {
                         return res.status(500).send(err);
                     }
                     if (index === imageNames.length - 1) {
-                        res.send('Files uploaded and saved to the database!' + newFileName);
+                        res.send('Files succesfully uploaded as ' + newFileName);
                     }
                 });
             }
