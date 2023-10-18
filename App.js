@@ -45,7 +45,7 @@ app.post('/upload', (req, res) => {
             [req.body.name, newFileName],
             (error, results, fields) => {
                 if (error) {
-                    return res.status(500).send('Error saving to database' + newFileName);
+                    return res.status(500).send('Error saving to database');
                 }
                 const destination = process.env.IMAGES_PATH + newFileName;
                 image.mv(destination, (err) => {
@@ -53,7 +53,7 @@ app.post('/upload', (req, res) => {
                         return res.status(500).send(err);
                     }
                     if (index === imageNames.length - 1) {
-                        res.send('Files uploaded and saved to the database!');
+                        res.send('Files uploaded and saved to the database!' + newFileName);
                     }
                 });
             }
