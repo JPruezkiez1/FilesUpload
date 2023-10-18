@@ -5,6 +5,8 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const app = express();
+const dotenv = require('dotenv');
+dotenv.config();
 
 function generateShortId() {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -15,16 +17,13 @@ function generateShortId() {
     }
     return result;
 }
-
 app.use(cors());
 app.use(fileUpload());
-
-// Create the connection pool. The pool-specific settings are the defaults
 const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'jpruezkiez',
-    password: 'kapa2122_',
-    database: 'jpdb',
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -41,8 +40,6 @@ app.post('/upload', (req, res) => {
     imageNames.forEach((imageName, index) => {
         const image = Array.isArray(images) ? images[index] : images;
         const newFileName = generateShortId() + path.extname(imageName);
-
-        // Use the connection pool for the query
         pool.query(
             'INSERT INTO imagesurls (name, image) VALUES (?, ?)',
             [req.body.name, newFileName],
@@ -50,7 +47,7 @@ app.post('/upload', (req, res) => {
                 if (error) {
                     return res.status(500).send('Error saving to database');
                 }
-                const destination = '/home/paulamar9428/images/' + newFileName;
+                const destination = process.env.IMAGES_PATH + newFileName;
                 image.mv(destination, (err) => {
                     if (err) {
                         return res.status(500).send(err);
