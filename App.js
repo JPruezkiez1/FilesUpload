@@ -19,11 +19,15 @@ function generateShortId() {
 app.use(cors());
 app.use(fileUpload());
 
-const connection = mysql.createConnection({
+// Create the connection pool. The pool-specific settings are the defaults
+const pool = mysql.createPool({
     host: 'localhost',
     user: 'jpruezkiez',
     password: 'kapa2122_',
     database: 'jpdb',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
 app.post('/upload', (req, res) => {
@@ -38,7 +42,8 @@ app.post('/upload', (req, res) => {
         const image = Array.isArray(images) ? images[index] : images;
         const newFileName = generateShortId() + path.extname(imageName);
 
-        connection.query(
+        // Use the connection pool for the query
+        pool.query(
             'INSERT INTO imagesurls (name, image) VALUES (?, ?)',
             [req.body.name, newFileName],
             (error, results, fields) => {
