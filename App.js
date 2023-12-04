@@ -88,6 +88,47 @@ app.delete('/deletefile', (req, res) => {
     );
 });
 
+app.delete('/deletegroup', (req, res) => {
+    const { name } = req.body;
+
+    pool.query(
+        'SELECT * FROM imagesurls WHERE name = ?',
+        [name],
+        (error, results, fields) => {
+            if (error) {
+                return res.status(500).send('Error querying from database');
+            }
+
+            if (results.length > 0) {
+                results.forEach((result, index) => {
+                    const filePath = path.join(process.env.IMAGES_PATH, result.image);
+                    fs.unlink(filePath, (err) => {
+                        if (err) {
+                            return res.status(500).send('Error deleting file');
+                        }
+                        if (index === results.length - 1) {
+                            pool.query(
+                                'DELETE FROM imagesurls WHERE name = ?',
+                                [name],
+                                (error, results, fields) => {
+                                    if (error) {
+                                        return res.status(500).send('Error deleting from database');
+                                    }
+                                    res.send('Files successfully deleted');
+                                }
+                            );
+                        }
+                    });
+                });
+            } else {
+                res.status(404).send('Files not found in database');
+            }
+        }
+    );
+});
+
+
+
 app.listen(3000, () => {
     console.log('Server is running on port');
 });
