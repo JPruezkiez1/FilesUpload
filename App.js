@@ -34,28 +34,28 @@ app.post('/upload', (req, res) => {
         return res.status(400).send('No files were uploaded.');
     }
 
-    const images = req.files.image;
-    const imageNames = Array.isArray(images) ? images.map((image) => image.name) : [images.name];
+    const files = req.files.file;
+    const fileNames = Array.isArray(files) ? files.map((file) => file.name) : [files.name];
 
-    imageNames.forEach((imageName, index) => {
-        const image = Array.isArray(images) ? images[index] : images;
-        const newFileName = generateShortId() + path.extname(imageName);
-        const fileSizeKB = image.size / 1024;
+    fileNames.forEach((fileName, index) => {
+        const file = Array.isArray(files) ? files[index] : files;
+        const newFileName = generateShortId() + path.extname(fileName);
+        const fileSizeKB = file.size / 1024;
         const fileSizeMB = fileSizeKB / 1024;
 
         pool.query(
-            'INSERT INTO imagesurls (name, image, sizeKB, sizeMB) VALUES (?, ?, ?, ?)',
+            'INSERT INTO imagesurls (uploadname, filename, sizeKB, sizeMB) VALUES (?, ?, ?, ?)',
             [req.body.name, newFileName, fileSizeKB.toFixed(2), fileSizeMB.toFixed(2)],
             (error, results, fields) => {
                 if (error) {
                     return res.status(500).send('Error saving to database');
                 }
                 const destination = process.env.IMAGES_PATH + newFileName;
-                image.mv(destination, (err) => {
+                file.mv(destination, (err) => {
                     if (err) {
                         return res.status(500).send(err);
                     }
-                    if (index === imageNames.length - 1) {
+                    if (index === fileNames.length - 1) {
                         res.send('Files successfully uploaded as ' + newFileName);
                     }
                 });
@@ -63,6 +63,7 @@ app.post('/upload', (req, res) => {
         );
     });
 });
+
 
 
 /// ENDPOINT TO DELETE all files that matches the column 'image'
