@@ -62,7 +62,7 @@ app.post('/upload', (req, res) => {
 });
 
 
-app.delete('/delete', (req, res) => {
+app.delete('/deletefile', (req, res) => {
     const { image } = req.body;
 
     pool.query(
