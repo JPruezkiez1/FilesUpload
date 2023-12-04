@@ -61,6 +61,33 @@ app.post('/upload', (req, res) => {
     });
 });
 
+
+app.delete('/delete', (req, res) => {
+    const { image } = req.body;
+
+    pool.query(
+        'DELETE FROM imagesurls WHERE image = ?',
+        [image],
+        (error, results, fields) => {
+            if (error) {
+                return res.status(500).send('Error deleting from database');
+            }
+
+            if (results.affectedRows > 0) {
+                const filePath = path.join(process.env.IMAGES_PATH, image);
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        return res.status(500).send('Error deleting file');
+                    }
+                    res.send('File successfully deleted');
+                });
+            } else {
+                res.status(404).send('File not found in database');
+            }
+        }
+    );
+});
+
 app.listen(3000, () => {
     console.log('Server is running on port');
 });
