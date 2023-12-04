@@ -40,9 +40,12 @@ app.post('/upload', (req, res) => {
     imageNames.forEach((imageName, index) => {
         const image = Array.isArray(images) ? images[index] : images;
         const newFileName = generateShortId() + path.extname(imageName);
+        const fileSizeKB = image.size / 1024; // size in KB
+        const fileSizeMB = fileSizeKB / 1024; // size in MB
+
         pool.query(
-            'INSERT INTO imagesurls (name, image) VALUES (?, ?)',
-            [req.body.name, newFileName],
+            'INSERT INTO imagesurls (name, image, sizeKB, sizeMB) VALUES (?, ?, ?, ?)',
+            [req.body.name, newFileName, fileSizeKB.toFixed(2), fileSizeMB.toFixed(2)],
             (error, results, fields) => {
                 if (error) {
                     return res.status(500).send('Error saving to database');
@@ -53,13 +56,14 @@ app.post('/upload', (req, res) => {
                         return res.status(500).send(err);
                     }
                     if (index === imageNames.length - 1) {
-                        res.send('Files succesfully uploaded as ' + newFileName);
+                        res.send('Files successfully uploaded as ' + newFileName);
                     }
                 });
             }
         );
     });
 });
+
 
 
 app.delete('/deletefile', (req, res) => {
