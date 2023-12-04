@@ -40,8 +40,8 @@ app.post('/upload', (req, res) => {
     imageNames.forEach((imageName, index) => {
         const image = Array.isArray(images) ? images[index] : images;
         const newFileName = generateShortId() + path.extname(imageName);
-        const fileSizeKB = image.size / 1024; // size in KB
-        const fileSizeMB = fileSizeKB / 1024; // size in MB
+        const fileSizeKB = image.size / 1024;
+        const fileSizeMB = fileSizeKB / 1024;
 
         pool.query(
             'INSERT INTO imagesurls (name, image, sizeKB, sizeMB) VALUES (?, ?, ?, ?)',
@@ -65,7 +65,7 @@ app.post('/upload', (req, res) => {
 });
 
 
-
+/// ENDPOINT TO DELETE all files that matches the column 'image'
 app.delete('/deletefile', (req, res) => {
     const { image } = req.body;
 
@@ -91,7 +91,7 @@ app.delete('/deletefile', (req, res) => {
         }
     );
 });
-
+/// ENDPOINT TO DELETE all files that matches the column 'name'
 app.delete('/deletegroup', (req, res) => {
     const { name } = req.body;
 
