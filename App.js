@@ -72,20 +72,19 @@ app.post('/upload', (req, res) => {
 
 
 
-/// ENDPOINT TO DELETE all files that matches the column 'image'
 app.delete('/deletefile', (req, res) => {
-    const { image } = req.body;
+    const { filename } = req.body;
 
     pool.query(
-        'DELETE FROM imagesurls WHERE image = ?',
-        [image],
+        'DELETE FROM imagesurls WHERE filename = ?',
+        [filename],
         (error, results, fields) => {
             if (error) {
                 return res.status(500).send('Error deleting from database');
             }
 
             if (results.affectedRows > 0) {
-                const filePath = path.join(process.env.IMAGES_PATH, image);
+                const filePath = path.join(process.env.IMAGES_PATH, filename);
                 fs.unlink(filePath, (err) => {
                     if (err) {
                         return res.status(500).send('Error deleting file');
@@ -98,13 +97,13 @@ app.delete('/deletefile', (req, res) => {
         }
     );
 });
-/// ENDPOINT TO DELETE all files that matches the column 'name'
-app.delete('/deletegroup', (req, res) => {
-    const { name } = req.body;
+
+app.delete('/delbyuploadname', (req, res) => {
+    const { uploadname } = req.body;
 
     pool.query(
-        'SELECT * FROM imagesurls WHERE name = ?',
-        [name],
+        'SELECT * FROM imagesurls WHERE uploadname = ?',
+        [uploadname],
         (error, results, fields) => {
             if (error) {
                 return res.status(500).send('Error querying from database');
@@ -112,15 +111,15 @@ app.delete('/deletegroup', (req, res) => {
 
             if (results.length > 0) {
                 results.forEach((result, index) => {
-                    const filePath = path.join(process.env.IMAGES_PATH, result.image);
+                    const filePath = path.join(process.env.IMAGES_PATH, result.filename);
                     fs.unlink(filePath, (err) => {
                         if (err) {
                             return res.status(500).send('Error deleting file');
                         }
                         if (index === results.length - 1) {
                             pool.query(
-                                'DELETE FROM imagesurls WHERE name = ?',
-                                [name],
+                                'DELETE FROM imagesurls WHERE uploadname = ?',
+                                [uploadname],
                                 (error, results, fields) => {
                                     if (error) {
                                         return res.status(500).send('Error deleting from database');
@@ -137,6 +136,7 @@ app.delete('/deletegroup', (req, res) => {
         }
     );
 });
+
 
 
 
