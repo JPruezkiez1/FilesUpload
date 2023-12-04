@@ -30,7 +30,6 @@ const pool = mysql.createPool({
 });
 
 app.post('/upload', (req, res) => {
-    // Check if customerId and uploadname are provided
     if (!req.body.customerId || !req.body.uploadname) {
         return res.status(400).send('customerId and uploadname are required');
     }
