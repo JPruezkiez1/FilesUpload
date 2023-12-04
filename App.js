@@ -34,7 +34,7 @@ app.post('/upload', (req, res) => {
         return res.status(400).send('No files were uploaded.');
     }
 
-    const files = req.files.file;
+    const files = req.files.filename;
     const fileNames = Array.isArray(files) ? files.map((file) => file.name) : [files.name];
 
     fileNames.forEach((fileName, index) => {
@@ -45,7 +45,7 @@ app.post('/upload', (req, res) => {
 
         pool.query(
             'INSERT INTO imagesurls (uploadname, filename, sizeKB, sizeMB) VALUES (?, ?, ?, ?)',
-            [req.body.name, newFileName, fileSizeKB.toFixed(2), fileSizeMB.toFixed(2)],
+            [req.body.uploadname, newFileName, fileSizeKB.toFixed(2), fileSizeMB.toFixed(2)],
             (error, results, fields) => {
                 if (error) {
                     return res.status(500).send('Error saving to database');
