@@ -30,6 +30,11 @@ const pool = mysql.createPool({
 });
 
 app.post('/upload', (req, res) => {
+    // Check if customerId and uploadname are provided
+    if (!req.body.customerId || !req.body.uploadname) {
+        return res.status(400).send('customerId and uploadname are required');
+    }
+
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).send('No files were uploaded.');
     }
@@ -44,8 +49,8 @@ app.post('/upload', (req, res) => {
         const fileSizeMB = fileSizeKB / 1024;
 
         pool.query(
-            'INSERT INTO imagesurls (uploadname, filename, sizeKB, sizeMB) VALUES (?, ?, ?, ?)',
-            [req.body.uploadname, newFileName, fileSizeKB.toFixed(2), fileSizeMB.toFixed(2)],
+            'INSERT INTO imagesurls (customerId, uploadname, filename, sizeKB, sizeMB) VALUES (?, ?, ?, ?, ?)',
+            [req.body.customerId, req.body.uploadname, newFileName, fileSizeKB.toFixed(2), fileSizeMB.toFixed(2)],
             (error, results, fields) => {
                 if (error) {
                     return res.status(500).send('Error saving to database');
@@ -63,6 +68,7 @@ app.post('/upload', (req, res) => {
         );
     });
 });
+
 
 
 
