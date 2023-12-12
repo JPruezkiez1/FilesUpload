@@ -2,11 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2');
 
-// Load environment variables
 const dotenv = require('dotenv');
 dotenv.config();
 
-// Log all environment variables to console
 console.log(process.env);
 
 const pool = mysql.createPool({
