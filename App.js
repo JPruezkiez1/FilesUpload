@@ -71,7 +71,7 @@ app.post('/upload', (req, res) => {
 
 
 
-app.delete('/deletefile', (req, res) => {
+app.delete('/delete-file', (req, res) => {
     const { filename } = req.body;
 
     pool.query(
@@ -97,7 +97,7 @@ app.delete('/deletefile', (req, res) => {
     );
 });
 
-app.delete('/delbyuploadname', (req, res) => {
+app.delete('/delete-filegroup', (req, res) => {
     const { uploadname } = req.body;
 
     pool.query(
