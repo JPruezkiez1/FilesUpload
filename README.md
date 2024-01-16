@@ -63,9 +63,9 @@ Test the NGINX configuration `sudo nginx -t`
 Reload the NGINX configuration `sudo systemctl reload nginx`
 
 ### Access the API and the NGINX server:
-You may now access your API with port you defined, e.g **http://34.35.36.120:8080/upload**  this would be the the link and the endpoint.
+You may now access your API with port you defined, e.g **http://yourhost:8080/upload**  this would be the the link and the endpoint.
 
-to access the NGINX server, you might use **http://34.35.36.120/imagescheck/image.jpg**
+to access the NGINX server, you might use **http://yourhost.com/imagescheck/image.jpg**
 
 ### Check your images directory to see your actual files names as they get changed once uploaded
 
